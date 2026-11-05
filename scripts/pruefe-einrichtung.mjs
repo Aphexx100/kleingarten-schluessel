@@ -137,26 +137,51 @@ if (funktionAntwort) {
 
 /* ------------------------------------------- 4. Herkunft eingeschraenkt? */
 
-/* Trick zur Erkennung ohne Zugangsdaten: mit einem erfundenen Origin anfragen.
-   Ist ERLAUBTE_HERKUNFT nicht gesetzt, spiegelt die Funktion jeden Origin
-   zurueck. Ist es gesetzt, antwortet sie mit der erlaubten Adresse. */
+/* Zwei Fragen, beide ohne Zugangsdaten beantwortbar: Kommt die Vereinsseite
+   durch? Und bleiben fremde Seiten draussen?
+
+   Der Trick ist dieselbe Vorab-Anfrage mit unterschiedlichem Origin. Die
+   Funktion spiegelt einen erlaubten Origin zurueck; ist ERLAUBTE_HERKUNFT gar
+   nicht gesetzt, spiegelt sie jeden. */
+const VEREINSSEITEN = ['https://www.kgvgruenerwinkel.de', 'https://kgvgruenerwinkel.de'];
+const SOLL_HERKUNFT = VEREINSSEITEN.join(',');
+
+async function darfAnsprechen(origin) {
+  const antwort = await fetch(BASIS, {
+    method: 'OPTIONS',
+    headers: { Origin: origin, 'Access-Control-Request-Method': 'POST' },
+    signal: AbortSignal.timeout(20_000)
+  });
+  return antwort.headers.get('access-control-allow-origin');
+}
+
 if (funktionDa) {
   const erfunden = 'https://fremde-seite.example';
   try {
-    const antwort = await fetch(BASIS, {
-      method: 'OPTIONS',
-      headers: { Origin: erfunden, 'Access-Control-Request-Method': 'POST' },
-      signal: AbortSignal.timeout(20_000)
-    });
-    const erlaubt = antwort.headers.get('access-control-allow-origin');
+    const beiFremd = await darfAnsprechen(erfunden);
 
-    if (erlaubt === erfunden || erlaubt === '*') {
+    if (beiFremd === erfunden || beiFremd === '*') {
       fehlt(
         'Jede Webseite darf die Funktion ansprechen',
-        'Secret ERLAUBTE_HERKUNFT auf https://aphexx100.github.io setzen (nur Ursprung, kein Pfad) und die Funktion neu bereitstellen'
+        `Secret ERLAUBTE_HERKUNFT auf ${SOLL_HERKUNFT} setzen (nur Ursprünge, keine Pfade)`
       );
     } else {
-      ok('Nur die eigene Seite darf die Funktion ansprechen', erlaubt ?? 'gesetzt');
+      ok('Fremde Seiten werden abgewiesen');
+
+      /* Wichtiger als die Abweisung: kommt die eigene Seite noch durch? Ein
+         Tippfehler im Secret sperrt sonst den Vorstand aus, und das faellt
+         erst auf, wenn jemand vor der Liste steht. */
+      for (const seite of VEREINSSEITEN) {
+        const antwort = await darfAnsprechen(seite);
+        if (antwort === seite) {
+          ok(`${seite} darf die Funktion ansprechen`);
+        } else {
+          fehlt(
+            `${seite} wird abgewiesen`,
+            `ERLAUBTE_HERKUNFT muss beide Schreibweisen enthalten: ${SOLL_HERKUNFT}`
+          );
+        }
+      }
     }
   } catch (e) {
     console.log(`  ${gelb('?')}     Herkunft nicht pruefbar (${e.message})`);

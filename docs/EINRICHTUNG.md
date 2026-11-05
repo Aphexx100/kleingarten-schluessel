@@ -86,7 +86,7 @@ zur Seite.
 Dazu gehört ein zweites Secret, sobald die Seite online ist:
 
 - Name: `ERLAUBTE_HERKUNFT`
-- Wert: `https://aphexx100.github.io`
+- Wert: `https://www.kgvgruenerwinkel.de,https://kgvgruenerwinkel.de`
 
 Nur der Ursprung, **ohne** Pfad und ohne Schrägstrich am Ende — der Browser
 schickt genau das mit. Damit nehmen andere Webseiten die Funktion nicht mehr in
@@ -95,7 +95,7 @@ Anspruch.
 Nach dem Anlegen die Edge Function einmal neu bereitstellen, sonst kennt sie das
 Secret nicht. Lokales Arbeiten auf `localhost` funktioniert danach nicht mehr —
 dafür das Secret kurzzeitig auf
-`https://aphexx100.github.io,http://localhost:8095` setzen.
+`https://www.kgvgruenerwinkel.de,https://kgvgruenerwinkel.de,http://localhost:8095` setzen.
 
 ## 4. Die Edge Function anlegen
 
@@ -180,8 +180,9 @@ eigens.
 ### Das Repo
 
 [`Aphexx100/kleingarten-schluessel`](https://github.com/Aphexx100/kleingarten-schluessel)
-bleibt die Quelle. GitHub Pages wird dort nicht mehr gebraucht — zwei lebende
-Kopien derselben Liste wären eine Quelle von Verwirrung.
+bleibt die Quelle. GitHub Pages ist dort am 2026-11-05 abgeschaltet worden —
+zwei lebende Kopien derselben Liste wären eine Quelle von Verwirrung. Die alte
+Adresse `aphexx100.github.io/kleingarten-schluessel/` antwortet seitdem mit 404.
 
 ## 7. An den Vorstand weitergeben
 
@@ -200,7 +201,7 @@ gleich alles.
 > für die Ausgabe der neuen Außentor-Schlüssel gibt es jetzt eine gemeinsame
 > Liste im Netz:
 >
-> https://aphexx100.github.io/kleingarten-schluessel/
+> https://www.kgvgruenerwinkel.de/schluessel/
 >
 > Den Zugangscode bekommt ihr von mir persönlich — bitte nicht per Mail oder
 > Messenger weitergeben.
@@ -229,7 +230,7 @@ Auf <https://www.kgvgruenerwinkel.de/> kann ein Link stehen. Baustein für
 denjenigen, der die Seite pflegt:
 
 ```html
-<a href="https://aphexx100.github.io/kleingarten-schluessel/"
+<a href="https://www.kgvgruenerwinkel.de/schluessel/"
    target="_blank" rel="noopener">
   Schlüsselausgabe Außentore (nur Vorstand, Zugangscode nötig)
 </a>

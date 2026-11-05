@@ -1,6 +1,6 @@
 # Schlüsselausgabe Außentore
 
-**Live: <https://aphexx100.github.io/kleingarten-schluessel/>** (Zugangscode nötig)
+**Live: <https://www.kgvgruenerwinkel.de/schluessel/>** (Zugangscode nötig)
 
 Eine Liste für die Verteilung der neuen Zylinderschlüssel im Kleingartenverein:
 54 Gärten, 60 Schlüssel, 7 gleichschließende Zylinder.
@@ -40,7 +40,7 @@ Siehe **[docs/EINRICHTUNG.md](docs/EINRICHTUNG.md)**. Kurz:
 2. `supabase/001_schema.sql` im SQL Editor ausführen
 3. Secret `ZUGANGSCODE` setzen
 4. Edge Function `api` bereitstellen, dabei **„Verify JWT" ausschalten**
-5. Seite auf GitHub Pages stellen
+5. Liste mit `npm run nach-vereinsseite` auf die Vereinsseite bringen
 
 ## Wie der Zugang geregelt ist
 
@@ -48,9 +48,9 @@ Es gibt keine persönlichen Konten, sondern **einen gemeinsamen Zugangscode** f�
 den Vorstand. Wer die Seite öffnet, gibt ihn einmal ein; danach merkt der
 Browser ihn.
 
-Der reine Link genügt also nicht. Das ist der Punkt: die Seite liegt öffentlich
-auf GitHub Pages, und ohne Code stünden Namen, Adressen und Fotos für jeden
-offen, der die Adresse kennt.
+Der reine Link genügt also nicht. Das ist der Punkt: die Seite ist öffentlich
+erreichbar, und ohne Code stünden Namen, Adressen und Fotos für jeden offen,
+der die Adresse kennt.
 
 Technisch kommt der Browser nie an die Datenbank. Alle Zugriffe laufen über die
 Edge Function `api`, die den Code prüft. Der Datenbankschlüssel liegt auf dem
