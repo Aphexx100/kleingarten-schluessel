@@ -135,7 +135,35 @@ if (funktionAntwort) {
   }
 }
 
-/* ------------------------------------------------ 4. Tabellen (mit Code) */
+/* ------------------------------------------- 4. Herkunft eingeschraenkt? */
+
+/* Trick zur Erkennung ohne Zugangsdaten: mit einem erfundenen Origin anfragen.
+   Ist ERLAUBTE_HERKUNFT nicht gesetzt, spiegelt die Funktion jeden Origin
+   zurueck. Ist es gesetzt, antwortet sie mit der erlaubten Adresse. */
+if (funktionDa) {
+  const erfunden = 'https://fremde-seite.example';
+  try {
+    const antwort = await fetch(BASIS, {
+      method: 'OPTIONS',
+      headers: { Origin: erfunden, 'Access-Control-Request-Method': 'POST' },
+      signal: AbortSignal.timeout(20_000)
+    });
+    const erlaubt = antwort.headers.get('access-control-allow-origin');
+
+    if (erlaubt === erfunden || erlaubt === '*') {
+      fehlt(
+        'Jede Webseite darf die Funktion ansprechen',
+        'Secret ERLAUBTE_HERKUNFT auf https://aphexx100.github.io setzen (nur Ursprung, kein Pfad) und die Funktion neu bereitstellen'
+      );
+    } else {
+      ok('Nur die eigene Seite darf die Funktion ansprechen', erlaubt ?? 'gesetzt');
+    }
+  } catch (e) {
+    console.log(`  ${gelb('?')}     Herkunft nicht pruefbar (${e.message})`);
+  }
+}
+
+/* ------------------------------------------------ 5. Tabellen (mit Code) */
 
 if (process.argv.includes('--mit-code') && funktionDa) {
   console.log('');
