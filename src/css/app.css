@@ -57,16 +57,12 @@ button:disabled {
   cursor: default;
 }
 
+/* Schrift auf dem grünen Knopf: im dunklen Thema ist Grün hell, also muss die
+   Schrift dunkel sein — und umgekehrt. */
 button.haupt {
   background: var(--gruen-700);
   border-color: var(--gruen-700);
-  color: #fff;
-}
-
-@media (prefers-color-scheme: dark) {
-  button.haupt {
-    color: var(--grund);
-  }
+  color: var(--grund);
 }
 
 button.haupt:hover:not(:disabled) {
@@ -265,13 +261,7 @@ textarea {
 .filter button[aria-pressed="true"] {
   background: var(--gruen-700);
   border-color: var(--gruen-700);
-  color: #fff;
-}
-
-@media (prefers-color-scheme: dark) {
-  .filter button[aria-pressed="true"] {
-    color: var(--grund);
-  }
+  color: var(--grund);
 }
 
 /* ---------------------------------------------------------------- Liste */

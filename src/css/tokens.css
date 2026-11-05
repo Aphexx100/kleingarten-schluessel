@@ -1,28 +1,36 @@
 /* Farben, Abstände, Schrift — an einer Stelle, damit sich das Aussehen ändern
    lässt, ohne die Bausteine anzufassen.
 
-   Helles und dunkles Erscheinungsbild kommen aus derselben Liste: die Seite wird
-   oft draußen im Garten am Handy benutzt, bei Sonne wie in der Dämmerung. */
+   Die Seite ist durchgehend dunkel. Keine Abfrage von prefers-color-scheme:
+   die unterscheidet nicht zwischen "hell gewünscht" und "nichts angegeben",
+   weshalb eine Umschaltung dort je nach Gerät zufällig ausfiele. Soll es später
+   wählbar sein, gehört das an einen Schalter in der Seite, nicht an die
+   Systemeinstellung. */
 
 :root {
-  --gruen-900: #14361f;
-  --gruen-700: #1f6b3a;
-  --gruen-600: #2b8b4b;
-  --gruen-100: #e6f3ea;
+  color-scheme: dark;
 
-  --grund: #f7f6f2;
-  --karte: #ffffff;
-  --rand: #e2e0d8;
-  --rand-stark: #cac7bb;
-  --text: #1c1b18;
-  --text-leise: #6a675e;
+  --gruen-900: #d4ecd9;
+  --gruen-700: #6cc389;
+  --gruen-600: #4fae6d;
+  --gruen-100: #1b3524;
 
-  --offen: #8a6a16;
-  --offen-grund: #fdf4dd;
-  --warn: #9a3412;
-  --warn-grund: #fdeae2;
-  --fehler: #a21425;
-  --fehler-grund: #fdecee;
+  --grund: #16171a;
+  --karte: #1f2125;
+  --rand: #32353b;
+  --rand-stark: #4a4e56;
+  --text: #ecebe7;
+  --text-leise: #a3a09a;
+
+  --offen: #e8c468;
+  --offen-grund: #312a16;
+  --warn: #f0a384;
+  --warn-grund: #3a2017;
+  --fehler: #f2919c;
+  --fehler-grund: #3b1a1f;
+
+  --schatten: 0 1px 2px rgb(0 0 0 / 40%), 0 4px 12px rgb(0 0 0 / 30%);
+  --schatten-hoch: 0 8px 32px rgb(0 0 0 / 55%);
 
   --r-klein: 8px;
   --r: 12px;
@@ -35,38 +43,9 @@
   --l5: 24px;
   --l6: 32px;
 
-  --schatten: 0 1px 2px rgb(28 27 24 / 6%), 0 4px 12px rgb(28 27 24 / 5%);
-  --schatten-hoch: 0 8px 32px rgb(28 27 24 / 18%);
-
   --schrift: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
   --zahlen: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, monospace;
 
   /* Fingerfreundlich: die Seite wird am Handy mit Handschuhen bedient. */
   --tippziel: 44px;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --gruen-900: #d4ecd9;
-    --gruen-700: #6cc389;
-    --gruen-600: #4fae6d;
-    --gruen-100: #1b3524;
-
-    --grund: #16171a;
-    --karte: #1f2125;
-    --rand: #32353b;
-    --rand-stark: #4a4e56;
-    --text: #ecebe7;
-    --text-leise: #a3a09a;
-
-    --offen: #e8c468;
-    --offen-grund: #312a16;
-    --warn: #f0a384;
-    --warn-grund: #3a2017;
-    --fehler: #f2919c;
-    --fehler-grund: #3b1a1f;
-
-    --schatten: 0 1px 2px rgb(0 0 0 / 40%), 0 4px 12px rgb(0 0 0 / 30%);
-    --schatten-hoch: 0 8px 32px rgb(0 0 0 / 55%);
-  }
 }
