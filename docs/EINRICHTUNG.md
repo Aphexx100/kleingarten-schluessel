@@ -197,6 +197,27 @@ gleich alles.
 > In der Liste stehen Namen und Adressen von Mitgliedern. Bitte entsprechend
 > behandeln.
 
+### Verlinkung von der Vereinsseite
+
+Auf <https://www.kgvgruenerwinkel.de/> kann ein Link stehen. Baustein für
+denjenigen, der die Seite pflegt:
+
+```html
+<a href="https://aphexx100.github.io/kleingarten-schluessel/"
+   target="_blank" rel="noopener">
+  Schlüsselausgabe Außentore (nur Vorstand, Zugangscode nötig)
+</a>
+```
+
+**Der Zugangscode gehört nicht auf diese Seite** — auch nicht in einen
+Klammerzusatz, auch nicht in einen Bereich, den „eigentlich nur Mitglieder
+sehen". Der Link darf öffentlich sein, der Code nicht. Beides zusammen auf einer
+öffentlichen Seite hebt den Schutz vollständig auf.
+
+Wenn die Vereinsseite einen geschützten Mitgliederbereich hat, gehört der Link
+dorthin. Nötig ist es nicht — die Liste schützt sich selbst —, aber es erspart
+Rückfragen von Mitgliedern, die den Link finden und nicht hineinkommen.
+
 ### Warum der Hinweis mit dem Startbildschirm
 
 Safari und andere Browser räumen den Speicher selten besuchter Seiten nach etwa
