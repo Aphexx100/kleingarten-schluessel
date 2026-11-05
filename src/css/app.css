@@ -1,0 +1,742 @@
+/* Aussehen der Seite. Mobil zuerst: die Einträge entstehen meistens am Handy,
+   direkt nach der Übergabe. Breite Bildschirme bekommen weiter unten mehr Platz. */
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--grund);
+  color: var(--text);
+  font: 16px/1.5 var(--schrift);
+}
+
+#app {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: var(--l4) var(--l3) var(--l6);
+}
+
+.laedt {
+  color: var(--text-leise);
+  padding: var(--l6) 0;
+  text-align: center;
+}
+
+h1 {
+  margin: 0;
+  font-size: 1.35rem;
+  letter-spacing: -0.01em;
+}
+
+/* ------------------------------------------------------------------ Knöpfe */
+
+button {
+  font: inherit;
+  font-weight: 500;
+  color: var(--text);
+  background: var(--karte);
+  border: 1px solid var(--rand-stark);
+  border-radius: var(--r-klein);
+  padding: 10px 14px;
+  min-height: var(--tippziel);
+  cursor: pointer;
+}
+
+button:hover:not(:disabled) {
+  border-color: var(--gruen-600);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+button.haupt {
+  background: var(--gruen-700);
+  border-color: var(--gruen-700);
+  color: #fff;
+}
+
+@media (prefers-color-scheme: dark) {
+  button.haupt {
+    color: var(--grund);
+  }
+}
+
+button.haupt:hover:not(:disabled) {
+  background: var(--gruen-600);
+  border-color: var(--gruen-600);
+}
+
+button.leise {
+  background: none;
+  border-color: transparent;
+  color: var(--text-leise);
+  padding: 10px 8px;
+}
+
+button.leise:hover:not(:disabled) {
+  color: var(--text);
+  border-color: var(--rand);
+}
+
+button.gefahr {
+  color: var(--fehler);
+  border-color: transparent;
+  background: none;
+}
+
+:is(button, input, select, textarea):focus-visible {
+  outline: 2px solid var(--gruen-600);
+  outline-offset: 2px;
+}
+
+/* ------------------------------------------------------------------ Felder */
+
+label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-leise);
+  margin-bottom: var(--l1);
+}
+
+input[type="text"],
+input[type="date"],
+input[type="password"],
+input[type="search"],
+input[type="url"],
+select,
+textarea {
+  font: inherit;
+  width: 100%;
+  color: var(--text);
+  background: var(--karte);
+  border: 1px solid var(--rand-stark);
+  border-radius: var(--r-klein);
+  padding: 11px 12px;
+  min-height: var(--tippziel);
+}
+
+textarea {
+  resize: vertical;
+  min-height: 72px;
+  line-height: 1.45;
+}
+
+.feld {
+  margin-bottom: var(--l3);
+}
+
+.feld .hinweis {
+  font-size: 0.82rem;
+  color: var(--text-leise);
+  margin: var(--l1) 0 0;
+}
+
+/* --------------------------------------------------------------- Kopfteil */
+
+.kopf {
+  display: flex;
+  align-items: center;
+  gap: var(--l3);
+  flex-wrap: wrap;
+  margin-bottom: var(--l4);
+}
+
+.kopf h1 {
+  flex: 1 1 auto;
+}
+
+.kopf .wer {
+  font-size: 0.85rem;
+  color: var(--text-leise);
+}
+
+.kopf .wer b {
+  color: var(--text);
+  font-weight: 500;
+}
+
+/* -------------------------------------------------------------- Kacheln */
+
+.zahlen {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--l2);
+  margin-bottom: var(--l4);
+}
+
+@media (min-width: 560px) {
+  .zahlen {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.kachel {
+  background: var(--karte);
+  border: 1px solid var(--rand);
+  border-radius: var(--r);
+  padding: var(--l3);
+}
+
+.kachel .wert {
+  font: 600 1.5rem/1.1 var(--zahlen);
+  letter-spacing: -0.02em;
+}
+
+.kachel .was {
+  font-size: 0.78rem;
+  color: var(--text-leise);
+  margin-top: 2px;
+}
+
+.kachel.betont {
+  background: var(--gruen-100);
+  border-color: var(--gruen-600);
+}
+
+.kachel.betont .wert {
+  color: var(--gruen-700);
+}
+
+.kachel.achtung {
+  background: var(--offen-grund);
+  border-color: var(--offen);
+}
+
+.kachel.achtung .wert {
+  color: var(--offen);
+}
+
+/* Fortschrittsbalken unter den Kacheln. */
+.balken {
+  height: 8px;
+  border-radius: 99px;
+  background: var(--rand);
+  overflow: hidden;
+  margin-bottom: var(--l4);
+}
+
+.balken i {
+  display: block;
+  height: 100%;
+  background: var(--gruen-600);
+  transition: width 0.3s ease;
+}
+
+/* ------------------------------------------------------------- Werkzeuge */
+
+.werkzeuge {
+  display: flex;
+  gap: var(--l2);
+  flex-wrap: wrap;
+  margin-bottom: var(--l3);
+}
+
+.werkzeuge input[type="search"] {
+  flex: 1 1 180px;
+}
+
+.filter {
+  display: flex;
+  gap: var(--l1);
+  overflow-x: auto;
+  padding-bottom: var(--l1);
+  margin-bottom: var(--l4);
+  scrollbar-width: thin;
+}
+
+.filter button {
+  min-height: 36px;
+  padding: 6px 12px;
+  border-radius: 99px;
+  font-size: 0.88rem;
+  white-space: nowrap;
+  flex: 0 0 auto;
+}
+
+.filter button[aria-pressed="true"] {
+  background: var(--gruen-700);
+  border-color: var(--gruen-700);
+  color: #fff;
+}
+
+@media (prefers-color-scheme: dark) {
+  .filter button[aria-pressed="true"] {
+    color: var(--grund);
+  }
+}
+
+/* ---------------------------------------------------------------- Liste */
+
+.liste {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--l2);
+}
+
+.garten {
+  background: var(--karte);
+  border: 1px solid var(--rand);
+  border-radius: var(--r);
+  overflow: hidden;
+}
+
+.garten.erledigt {
+  border-left: 4px solid var(--gruen-600);
+}
+
+.garten.offen {
+  border-left: 4px solid var(--rand-stark);
+}
+
+.garten.unvollstaendig {
+  border-left: 4px solid var(--offen);
+}
+
+.garten.auf {
+  border-color: var(--gruen-600);
+  box-shadow: var(--schatten);
+}
+
+/* Zusammengeklappte Zeile */
+.zeile {
+  display: flex;
+  align-items: center;
+  gap: var(--l3);
+  width: 100%;
+  background: none;
+  border: 0;
+  border-radius: 0;
+  padding: var(--l3);
+  text-align: left;
+  min-height: 60px;
+}
+
+.zeile:hover {
+  background: color-mix(in srgb, var(--gruen-100) 40%, transparent);
+}
+
+.zeile .nr {
+  flex: 0 0 auto;
+  min-width: 2.4em;
+  font: 600 1.1rem/1 var(--zahlen);
+  color: var(--gruen-700);
+}
+
+.zeile .mitte {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.zeile .unten {
+  display: flex;
+  gap: var(--l1);
+  align-items: center;
+  font-size: 0.78rem;
+  color: var(--text-leise);
+  margin-top: 2px;
+}
+
+/* Höchstens zwei Zeilen: lange Ortsangaben dürfen umbrechen, sollen die Liste
+   aber nicht auseinanderziehen. */
+.zeile .zusammenfassung {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-weight: 500;
+  font-size: 0.92rem;
+  line-height: 1.35;
+}
+
+/* Offene Gärten treten zurück: dort steht nur, dass noch nichts passiert ist. */
+.garten.offen .zeile .zusammenfassung {
+  font-weight: 400;
+  color: var(--text-leise);
+}
+
+.marke {
+  flex: 0 0 auto;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 99px;
+  white-space: nowrap;
+}
+
+.marke.ja {
+  background: var(--gruen-100);
+  color: var(--gruen-700);
+}
+
+.marke.nein {
+  background: var(--offen-grund);
+  color: var(--offen);
+}
+
+.marke.achtung {
+  background: var(--warn-grund);
+  color: var(--warn);
+}
+
+.pfeil {
+  flex: 0 0 auto;
+  color: var(--text-leise);
+  transition: transform 0.2s ease;
+}
+
+.garten.auf .pfeil {
+  transform: rotate(90deg);
+}
+
+/* Aufgeklapptes Formular */
+.form {
+  padding: 0 var(--l3) var(--l4);
+  border-top: 1px solid var(--rand);
+  margin-top: 0;
+}
+
+.form > :first-child {
+  margin-top: var(--l4);
+}
+
+.schalter {
+  display: flex;
+  align-items: center;
+  gap: var(--l3);
+  padding: var(--l3) 0;
+}
+
+.schalter input {
+  width: 22px;
+  height: 22px;
+  accent-color: var(--gruen-700);
+  flex: 0 0 auto;
+}
+
+.schalter label {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--text);
+  cursor: pointer;
+}
+
+/* Das Rollout: drei Wahlmöglichkeiten als große Flächen, nicht als
+   Auswahlliste — am Handy trifft man Flächen besser als Listeneinträge. */
+.rollout {
+  display: grid;
+  gap: var(--l2);
+  margin-bottom: var(--l4);
+}
+
+@media (min-width: 520px) {
+  .rollout {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.rollout .wahl {
+  display: flex;
+  align-items: center;
+  gap: var(--l2);
+  border: 1px solid var(--rand-stark);
+  border-radius: var(--r-klein);
+  padding: var(--l3);
+  cursor: pointer;
+  min-height: var(--tippziel);
+  background: var(--karte);
+}
+
+.rollout .wahl:hover {
+  border-color: var(--gruen-600);
+}
+
+.rollout .wahl input {
+  accent-color: var(--gruen-700);
+  width: 20px;
+  height: 20px;
+  flex: 0 0 auto;
+}
+
+.rollout .wahl span {
+  font-size: 0.92rem;
+  font-weight: 500;
+}
+
+.rollout .wahl:has(input:checked) {
+  border-color: var(--gruen-700);
+  background: var(--gruen-100);
+}
+
+.rollout .wahl:has(input:checked) span {
+  color: var(--gruen-700);
+}
+
+.anzahl {
+  display: flex;
+  align-items: center;
+  gap: var(--l2);
+  margin-bottom: var(--l4);
+}
+
+.anzahl label {
+  margin: 0;
+}
+
+.anzahl select {
+  width: auto;
+  min-width: 5em;
+}
+
+/* ---------------------------------------------------------------- Fotos */
+
+.fotos {
+  margin-bottom: var(--l4);
+}
+
+.fotos .galerie {
+  display: flex;
+  gap: var(--l2);
+  flex-wrap: wrap;
+  margin-bottom: var(--l2);
+}
+
+.fotos figure {
+  margin: 0;
+  position: relative;
+  width: 96px;
+}
+
+.fotos img {
+  width: 96px;
+  height: 96px;
+  object-fit: cover;
+  border-radius: var(--r-klein);
+  border: 1px solid var(--rand);
+  background: var(--grund);
+  display: block;
+}
+
+.fotos .fehlt {
+  width: 96px;
+  height: 96px;
+  border-radius: var(--r-klein);
+  border: 1px dashed var(--rand-stark);
+  display: grid;
+  place-items: center;
+  font-size: 0.7rem;
+  color: var(--text-leise);
+  text-align: center;
+  padding: var(--l1);
+}
+
+.fotos figcaption {
+  font-size: 0.7rem;
+  color: var(--text-leise);
+  margin-top: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fotos .weg {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 26px;
+  height: 26px;
+  min-height: 0;
+  padding: 0;
+  border-radius: 99px;
+  background: var(--karte);
+  border: 1px solid var(--rand-stark);
+  color: var(--fehler);
+  font-size: 15px;
+  line-height: 1;
+  display: grid;
+  place-items: center;
+}
+
+.fotos input[type="file"] {
+  display: none;
+}
+
+.fotos .holen {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--l2);
+}
+
+/* ------------------------------------------------------------- Meldungen */
+
+.meldung {
+  border-radius: var(--r-klein);
+  padding: var(--l2) var(--l3);
+  font-size: 0.88rem;
+  margin-bottom: var(--l3);
+}
+
+.meldung.fehler {
+  background: var(--fehler-grund);
+  color: var(--fehler);
+  border: 1px solid currentcolor;
+}
+
+.meldung.warnung {
+  background: var(--offen-grund);
+  color: var(--offen);
+  border: 1px solid currentcolor;
+}
+
+.meldung.info {
+  background: var(--gruen-100);
+  color: var(--gruen-700);
+  border: 1px solid currentcolor;
+}
+
+.meldung ul {
+  margin: var(--l1) 0 0;
+  padding-left: 1.2em;
+}
+
+.aktionen {
+  display: flex;
+  gap: var(--l2);
+  align-items: center;
+  flex-wrap: wrap;
+  padding-top: var(--l2);
+}
+
+.aktionen .luecke {
+  flex: 1 1 auto;
+}
+
+.stand {
+  font-size: 0.78rem;
+  color: var(--text-leise);
+  margin-top: var(--l3);
+}
+
+/* ---------------------------------------------------------------- Zugang */
+
+.zugang {
+  max-width: 420px;
+  margin: 8vh auto 0;
+  background: var(--karte);
+  border: 1px solid var(--rand);
+  border-radius: var(--r-gross);
+  box-shadow: var(--schatten);
+  padding: var(--l5);
+}
+
+.zugang h1 {
+  margin-bottom: var(--l2);
+}
+
+.zugang p.vorab {
+  color: var(--text-leise);
+  font-size: 0.9rem;
+  margin: 0 0 var(--l4);
+}
+
+.zugang .aktionen {
+  padding-top: var(--l3);
+}
+
+.zugang details {
+  margin-top: var(--l4);
+  font-size: 0.85rem;
+  color: var(--text-leise);
+}
+
+.zugang summary {
+  cursor: pointer;
+  min-height: 32px;
+  display: flex;
+  align-items: center;
+}
+
+/* ------------------------------------------------------------- Fußbereich */
+
+.fuss {
+  margin-top: var(--l6);
+  padding-top: var(--l4);
+  border-top: 1px solid var(--rand);
+  display: flex;
+  gap: var(--l2);
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.fuss .luecke {
+  flex: 1 1 auto;
+}
+
+.fuss .hinweis {
+  font-size: 0.78rem;
+  color: var(--text-leise);
+  flex: 1 1 100%;
+  margin: var(--l3) 0 0;
+}
+
+.demoband {
+  background: var(--offen-grund);
+  color: var(--offen);
+  border: 1px solid var(--offen);
+  border-radius: var(--r-klein);
+  padding: var(--l2) var(--l3);
+  font-size: 0.85rem;
+  margin-bottom: var(--l4);
+}
+
+.leer {
+  text-align: center;
+  color: var(--text-leise);
+  padding: var(--l6) var(--l3);
+  background: var(--karte);
+  border: 1px dashed var(--rand-stark);
+  border-radius: var(--r);
+}
+
+/* Verlauf einer Zeile */
+.verlauf {
+  margin-top: var(--l3);
+  font-size: 0.82rem;
+  color: var(--text-leise);
+}
+
+.verlauf ol {
+  margin: var(--l2) 0 0;
+  padding-left: 1.2em;
+}
+
+.verlauf li {
+  margin-bottom: var(--l1);
+}
+
+@media print {
+  .werkzeuge,
+  .filter,
+  .fuss,
+  .pfeil,
+  .zahlen .kachel.achtung {
+    display: none;
+  }
+
+  .garten {
+    break-inside: avoid;
+  }
+}

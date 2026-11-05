@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Schlüsselausgabe Außentore</title>
+    <link rel="stylesheet" href="src/css/tokens.css" />
+    <link rel="stylesheet" href="src/css/app.css" />
+  </head>
+  <body>
+    <!-- Die Adresse der Edge Function. Nicht geheim: ohne Zugangscode gibt sie
+         nichts heraus. Steht sie hier, muss sie niemand abtippen — es genügt
+         dann der Zugangscode. -->
+    <script>
+      window.SCHLUESSEL_BASIS = 'https://yrvlclolmkdqrkkhbnvn.supabase.co/functions/v1/api';
+    </script>
+
+    <div id="app" aria-busy="true">
+      <p class="laedt">Wird geladen …</p>
+    </div>
+
+    <script type="module" src="src/js/main.js"></script>
+  </body>
+</html>

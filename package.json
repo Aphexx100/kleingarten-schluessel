@@ -1,0 +1,24 @@
+{
+  "name": "kleingarten-schluessel",
+  "version": "1.0.0",
+  "description": "Schlüsselausgabe für die Außentore: welcher Garten hat seinen Schlüssel, wie wurde er übergeben, mit Nachweisfoto.",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "scripts": {
+    "start": "node scripts/serve.mjs 8095",
+    "build": "node scripts/build-single.mjs",
+    "unit": "node scripts/unit-test.mjs",
+    "test": "node scripts/smoke-test.mjs",
+    "check": "npm run unit && npm run build && npm test",
+    "einrichtung": "node scripts/pruefe-einrichtung.mjs",
+    "code-vorschlag": "node scripts/code-vorschlag.mjs"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.2",
+    "playwright": "^1.56.0"
+  },
+  "allowScripts": {
+    "esbuild@0.28.2": true
+  }
+}
