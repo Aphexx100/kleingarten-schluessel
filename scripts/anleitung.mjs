@@ -1,8 +1,12 @@
-/* Erzeugt die bebilderte Kurzanleitung als PDF.
+/* Erzeugt die bebilderte Kurzanleitung — als PDF und als Word-Datei.
  *
  * Die Bilder entstehen frisch bei jedem Lauf — aus der Anwendung selbst, nicht
  * aus abgelegten Dateien. Damit kann die Anleitung nicht unbemerkt veralten:
  * wird die Oberflaeche geaendert, zeigt der naechste Lauf den neuen Stand.
+ *
+ * Der Text steht in scripts/anleitung-inhalt.mjs und wird von beiden Ausgaben
+ * benutzt. Stuende er zweimal da, liefen PDF und Word-Datei beim ersten
+ * Nachtragen auseinander.
  *
  * Die Aufnahmen laufen im Vorfuehrbetrieb (?demo) mit erfundenen Beispieldaten.
  * In einer Anleitung, die herumgereicht wird, haben echte Mitgliedernamen und
@@ -10,7 +14,8 @@
  *
  * Aufruf:  node scripts/anleitung.mjs
  * Ergebnis: docs/Anleitung-Schluesselliste.pdf
- *           dist/anleitung.html  (zum Durchsehen im Browser)
+ *           docs/Anleitung-Schluesselliste.docx   (zum Selberaendern)
+ *           dist/anleitung.html                   (zum Durchsehen im Browser)
  */
 
 import { chromium } from 'playwright';
@@ -20,9 +25,23 @@ import fsp from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import {
+  TITEL,
+  UNTERTITEL,
+  SCHRITTE,
+  STOERUNGEN,
+  STOERUNGEN_TITEL,
+  SCHLUSSHINWEIS,
+  inlineTeile,
+  stand
+} from './anleitung-inhalt.mjs';
+import { wordSchreiben } from './anleitung-word.mjs';
+import { wordPruefen } from './anleitung-pruefen.mjs';
+
 const WURZEL = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const PORT = 8397;
-const ZIEL = path.join(WURZEL, 'docs', 'Anleitung-Schluesselliste.pdf');
+const ZIEL_PDF = path.join(WURZEL, 'docs', 'Anleitung-Schluesselliste.pdf');
+const ZIEL_DOCX = path.join(WURZEL, 'docs', 'Anleitung-Schluesselliste.docx');
 
 /* Bild links, Text rechts. Die Bildspalte ist schmal, darum duerfen die
    Aufnahmen nicht beliebig hoch sein — sonst steht neben einem sehr langen
@@ -59,21 +78,22 @@ const seite = await browser.newPage({
   colorScheme: 'dark'
 });
 
+/* name -> { daten: Buffer, breite, hoehe } */
 const bilder = {};
 
 /* Breite und Hoehe stehen im PNG-Kopf (IHDR), ab Byte 16. */
 const masse = (p) => ({ breite: p.readUInt32BE(16), hoehe: p.readUInt32BE(20) });
 
 async function schuss(name, ziel) {
-  const puffer = await (typeof ziel === 'string' ? seite.locator(ziel) : ziel).screenshot();
-  const { breite, hoehe } = masse(puffer);
+  const daten = await (typeof ziel === 'string' ? seite.locator(ziel) : ziel).screenshot();
+  const { breite, hoehe } = masse(daten);
 
   /* In der Bildspalte wird jede Aufnahme auf dieselbe Breite gebracht. Wie hoch
      sie dabei wird, entscheidet der Ausschnitt — und ein zu hohes Bild sprengt
      die Seite. Das faellt hier sofort auf, am fertigen PDF nicht. */
   const gedrucktHoch = BILDSPALTE_MM * (hoehe / breite);
 
-  bilder[name] = `data:image/png;base64,${puffer.toString('base64')}`;
+  bilder[name] = { daten, breite, hoehe };
   console.log(
     `  ${name.padEnd(13)} ${String(breite).padStart(4)}×${String(hoehe).padEnd(5)}` +
       ` → ${gedrucktHoch.toFixed(0)} mm hoch`
@@ -114,13 +134,11 @@ async function frischeZeile(nr = 3) {
 try {
   console.log('Bilder aufnehmen …');
 
-  /* ---------------------------------------------------- Liste und Zahlen */
   await seite.goto(`http://localhost:${PORT}/index.html?demo`);
   await seite.waitForSelector('.garten', { timeout: 10_000 });
   await seite.evaluate(() => document.querySelector('.demoband')?.remove());
   await schuss('zahlen', '.zahlen');
 
-  /* ------------------------------------------------------ Zeile und Weg */
   let g = await frischeZeile();
   await nurZeigen(['.schalter']);
   await schuss('haken', g.locator('.form'));
@@ -130,7 +148,6 @@ try {
   await g.locator('.rollout').waitFor();
   await schuss('rollout', g.locator('.rollout'));
 
-  /* ------------------------------------------------ die drei Wege einzeln */
   const wege = [
     {
       name: 'persoenlich',
@@ -161,7 +178,6 @@ try {
     await schuss(weg.name, g.locator('.form'));
   }
 
-  /* ----------------------------------------------------- fehlende Angabe */
   g = await frischeZeile();
   await g.locator('.schalter input').check();
   await g.locator('.rollout .wahl', { hasText: 'Persönlich' }).click();
@@ -170,12 +186,22 @@ try {
   await g.locator('.meldung.fehler').waitFor({ timeout: 5000 });
   await schuss('fehler', g.locator('.meldung.fehler'));
 
-  /* ------------------------------------------------------ Suche und Fuss */
   await seite.goto(`http://localhost:${PORT}/index.html?demo`);
   await seite.waitForSelector('.garten');
   await seite.evaluate(() => document.querySelector('.demoband')?.remove());
   await schuss('filter', '.filter');
   await schuss('sichern', '.fuss');
+
+  /* Jedes aufgenommene Bild muss auch gebraucht werden — sonst nimmt der Lauf
+     stillschweigend Arbeit auf sich, die niemand sieht. */
+  const gebraucht = new Set(SCHRITTE.map((s) => s.bild).filter(Boolean));
+  const ungenutzt = Object.keys(bilder).filter((n) => !gebraucht.has(n));
+  const fehlend = [...gebraucht].filter((n) => !bilder[n]);
+  if (ungenutzt.length) console.error(`  ACHTUNG: nicht verwendet — ${ungenutzt.join(', ')}`);
+  if (fehlend.length) {
+    console.error(`  ACHTUNG: fehlt — ${fehlend.join(', ')}`);
+    process.exitCode = 1;
+  }
 
   console.log('\nPDF bauen …');
   const html = anleitungHtml(bilder);
@@ -185,12 +211,12 @@ try {
 
   const pdfSeite = await browser.newPage();
   await pdfSeite.setContent(html, { waitUntil: 'load' });
-  await fsp.mkdir(path.dirname(ZIEL), { recursive: true });
+  await fsp.mkdir(path.dirname(ZIEL_PDF), { recursive: true });
 
   /* Erst daneben schreiben, dann umbenennen. Unter Windows sperrt ein offener
      PDF-Betrachter die Zieldatei — ohne diesen Umweg bricht der ganze Lauf mit
      EBUSY ab, nachdem die Bilder schon aufgenommen wurden. */
-  const zwischen = `${ZIEL}.neu`;
+  const zwischen = `${ZIEL_PDF}.neu`;
   await pdfSeite.pdf({
     path: zwischen,
     format: 'A4',
@@ -200,50 +226,86 @@ try {
     headerTemplate: '<span></span>',
     footerTemplate:
       '<div style="width:100%;font-size:8pt;color:#6a675e;font-family:system-ui,sans-serif;padding:0 15mm;display:flex;justify-content:space-between">' +
-      '<span>Schlüsselausgabe Außentore · KGV Grüner Winkel e.V.</span>' +
+      `<span>${TITEL} · KGV Grüner Winkel e.V.</span>` +
       '<span><span class="pageNumber"></span>/<span class="totalPages"></span></span>' +
       '</div>'
   });
   await pdfSeite.close();
+  await ersetzen(zwischen, ZIEL_PDF);
 
-  try {
-    await fsp.rename(zwischen, ZIEL);
-  } catch (e) {
-    if (e.code === 'EBUSY' || e.code === 'EPERM') {
-      console.error(
-        `\nDie Zieldatei ist gesperrt — vermutlich ist sie gerade in einem ` +
-          `PDF-Betrachter geöffnet.\nDas neue PDF liegt als ${path.relative(WURZEL, zwischen)}.\n` +
-          `Betrachter schließen und den Aufruf wiederholen.`
-      );
-      process.exit(1);
-    }
-    throw e;
-  }
-
-  const b = await fsp.readFile(ZIEL);
+  const b = await fsp.readFile(ZIEL_PDF);
   const seiten = (b.toString('latin1').match(/\/Type\s*\/Page[^s]/g) || []).length;
   console.log(
-    `\n${path.relative(WURZEL, ZIEL)} — ${seiten} Seiten, ${(b.length / 1024 / 1024).toFixed(1)} MB`
+    `  ${path.relative(WURZEL, ZIEL_PDF)} — ${seiten} Seiten, ${(b.length / 1024 / 1024).toFixed(1)} MB`
+  );
+
+  console.log('\nWord-Datei bauen …');
+  const zwischenDocx = `${ZIEL_DOCX}.neu`;
+  const groesse = await wordSchreiben(bilder, zwischenDocx);
+
+  /* Vor dem Umbenennen hineinschauen: eine kaputte Word-Datei faellt sonst
+     erst dem auf, der sie oeffnet. */
+  const ergebnisse = await wordPruefen(zwischenDocx);
+  const fehlgeschlagen = ergebnisse.filter((e) => !e.ok);
+  for (const e of fehlgeschlagen) console.error(`  FEHL ${e.was}`);
+  console.log(
+    `  ${ergebnisse.length - fehlgeschlagen.length} von ${ergebnisse.length} Prüfungen bestanden`
+  );
+  if (fehlgeschlagen.length) process.exitCode = 1;
+
+  await ersetzen(zwischenDocx, ZIEL_DOCX);
+  console.log(
+    `  ${path.relative(WURZEL, ZIEL_DOCX)} — ${(groesse / 1024 / 1024).toFixed(1)} MB`
   );
 } finally {
   await browser.close();
   server.close();
 }
 
+/* Gesperrte Zieldatei (offener Betrachter) nicht den ganzen Lauf kosten lassen. */
+async function ersetzen(von, nach) {
+  try {
+    await fsp.rename(von, nach);
+  } catch (e) {
+    if (e.code === 'EBUSY' || e.code === 'EPERM') {
+      console.error(
+        `\nDie Zieldatei ${path.basename(nach)} ist gesperrt — vermutlich gerade geöffnet.` +
+          `\nDie neue Fassung liegt als ${path.basename(von)}. Programm schließen und erneut aufrufen.`
+      );
+      process.exitCode = 1;
+      return;
+    }
+    throw e;
+  }
+}
+
 /* ------------------------------------------------------------ der Inhalt */
 
 function anleitungHtml(b) {
-  /* Ein Schritt: Bild links, kurzer Text rechts. */
-  const schritt = (nr, titel, bildname, text) => {
-    const bild = b[bildname];
-    /* Ohne Bild ueber die volle Breite — eine leere Bildspalte sieht aus wie
-       ein fehlendes Bild. */
+  const alsHtml = (text) =>
+    inlineTeile(text)
+      .map((t) => {
+        const sicher = t.text
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/`([^`]+)`/g, '<code>$1</code>');
+        return t.fett ? `<strong>${sicher}</strong>` : sicher;
+      })
+      .join('');
+
+  const datenUri = (name) =>
+    b[name] ? `data:image/png;base64,${b[name].daten.toString('base64')}` : null;
+
+  const schritt = (s) => {
+    const quelle = s.bild ? datenUri(s.bild) : null;
     return `
-    <section class="schritt${bild ? '' : ' ohne-bild'}">
-      ${bild ? `<div class="bild"><img src="${bild}" alt=""></div>` : ''}
+    <section class="schritt${quelle ? '' : ' ohne-bild'}">
+      ${quelle ? `<div class="bild"><img src="${quelle}" alt=""></div>` : ''}
       <div class="text">
-        <h2><span class="nr">${nr}</span>${titel}</h2>
-        ${text}
+        <h2><span class="nr">${s.nr}</span>${s.titel}</h2>
+        ${s.absaetze.map((a) => `<p>${alsHtml(a)}</p>`).join('')}
+        ${s.merke ? `<p class="merke">${alsHtml(s.merke)}</p>` : ''}
       </div>
     </section>`;
   };
@@ -298,66 +360,17 @@ function anleitungHtml(b) {
   code { background: #f2f1ec; padding: 1pt 3pt; border-radius: 3px; }
 </style></head><body>
 
-<h1>Schlüsselausgabe Außentore</h1>
-<p class="unterzeile">Kurzanleitung für den Vorstand · Stand ${new Date().toLocaleDateString('de-DE', { day: '2-digit', month: 'long', year: 'numeric' })}</p>
+<h1>${TITEL}</h1>
+<p class="unterzeile">${UNTERTITEL} · Stand ${stand()}</p>
 
-${schritt(1, 'Liste öffnen', null, `
-  <p><code>kgvgruenerwinkel.de</code> → Menü <strong>Vorstand</strong> → Knopf
-  <strong>Vorstandsbereich</strong> → Zugangscode eingeben →
-  <strong>Zur Schlüsselliste</strong>.</p>
-  <p class="merke">Den Code nie zusammen mit dem Link verschicken. Seite einmal auf
-  den Startbildschirm legen, sonst vergisst der Browser den Code nach ein, zwei
-  Wochen.</p>`)}
-
-${schritt(2, 'Oben: der Stand', 'zahlen', `
-  <p>Versorgte Gärten, offene Gärten, ausgegebene und übrige Schlüssel.</p>`)}
-
-${schritt(3, 'Zeile antippen', 'haken', `
-  <p>Garten antippen, dann den Haken setzen. Erst danach kommen die weiteren
-  Fragen.</p>`)}
-
-${schritt(4, 'Weg auswählen', 'rollout', `
-  <p>Antippen, wie der Schlüssel übergeben wurde. Je nach Wahl erscheinen
-  unterschiedliche Felder.</p>`)}
-
-${schritt(5, 'Persönlich übergeben', 'persoenlich', `
-  <p>Name der Person und Datum. Kein Foto nötig — der Name ist der Nachweis.</p>`)}
-
-${schritt(6, 'Hinterlegt', 'hinterlegt', `
-  <p>Wo genau, Datum, <strong>Foto vom Ort</strong>. So genau beschreiben, dass
-  die Person ohne Rückfrage hinfindet.</p>`)}
-
-${schritt(7, 'Per Post', 'post', `
-  <p>Adresse, Datum des Abschickens, <strong>Foto</strong> vom Brief oder vom
-  Einwurf.</p>
-  <p class="merke"><strong>Foto aufnehmen</strong> öffnet direkt die Kamera. Das
-  Bild wird automatisch verkleinert.</p>`)}
-
-${schritt(8, 'Speichern', 'fehler', `
-  <p>Auf <strong>Speichern</strong> tippen. Fehlt etwas, sagt die Liste welches
-  Feld — gespeichert wird dann noch nicht. <strong>Abbrechen</strong> verwirft
-  die Eingabe.</p>`)}
-
-${schritt(9, 'Suchen und filtern', 'filter', `
-  <p>Suchfeld: Gartennummer, Name, Ort oder Adresse.</p>
-  <p><strong>Foto fehlt</strong> zeigt die Übergaben, bei denen der Nachweis noch
-  aussteht. Da regelmäßig hineinschauen.</p>`)}
-
-${schritt(10, 'Sicherung ziehen', 'sichern', `
-  <p><strong>Als ZIP für Proton Drive</strong> packt Tabelle und alle Fotos in
-  eine Datei. Einmal pro Woche, und am Ende der Ausgabe.</p>`)}
+${SCHRITTE.map(schritt).join('')}
 
 <div class="schluss">
-  <h2>Wenn etwas klemmt</h2>
+  <h2>${STOERUNGEN_TITEL}</h2>
   <table>
-    <tr><td>Fragt wieder nach dem Code</td><td>Browser hat ihn vergessen — neu eingeben.</td></tr>
-    <tr><td>„Zugangscode stimmt nicht"</td><td>Vertippt oder Leerzeichen am Ende.</td></tr>
-    <tr><td>„Zu viele Fehlversuche"</td><td>Nach 15 Minuten geht es wieder.</td></tr>
-    <tr><td>„Keine Verbindung"</td><td>Kein Internet. Eingabe ist nicht gespeichert.</td></tr>
-    <tr><td>„Vorschau abgelaufen"</td><td>Nur die Anzeige. Seite neu laden.</td></tr>
+    ${STOERUNGEN.map(([a, c]) => `<tr><td>${alsHtml(a)}</td><td>${alsHtml(c)}</td></tr>`).join('')}
   </table>
-  <p class="merke" style="margin-top:8pt">Die Liste enthält Namen, Anschriften und
-  Fotos von Mitgliedern. Sie gehört in den Vorstand und sonst nirgendwohin.</p>
+  <p class="merke" style="margin-top:8pt">${alsHtml(SCHLUSSHINWEIS)}</p>
 </div>
 
 </body></html>`;
