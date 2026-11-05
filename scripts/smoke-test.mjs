@@ -337,6 +337,51 @@ try {
     const text = await meldung.textContent();
     if (!/Zugangscode/.test(text)) throw new Error(`Meldung: "${text}"`);
   });
+
+  console.log('\nEinzeldatei');
+
+  /* Die gebuendelte Einzeldatei ist das, was auf der Vereinsseite unter
+     /schluessel/ ausgeliefert wird. Sie wurde lange nur gebaut und nie
+     ausprobiert — seit sie das Produktionsartefakt ist, muss sie dieselben
+     Pruefungen bestehen wie die Fassung aus einzelnen Modulen. */
+  await pruefe('die Einzeldatei laeuft ohne weitere Dateien', async () => {
+    const eigen = await browser.newPage();
+    const fehler = [];
+    eigen.on('pageerror', (e) => fehler.push(e.message));
+    eigen.on('console', (m) => m.type() === 'error' && fehler.push(m.text()));
+    /* Keine Anfrage darf das Netz verlassen oder eine Nachbardatei laden. */
+    const fremd = [];
+    eigen.on('request', (r) => {
+      const u = r.url();
+      if (!u.startsWith(`http://localhost:${PORT}/dist/`) && !u.startsWith('data:') && !u.startsWith('blob:')) {
+        fremd.push(u);
+      }
+    });
+
+    try {
+      await eigen.goto(`http://localhost:${PORT}/dist/schluessel.html?demo`);
+      await eigen.waitForSelector('.garten', { timeout: 10_000 });
+      gleich(await eigen.locator('.garten').count(), 54, 'Anzahl Zeilen');
+
+      const werte = await eigen.locator('.kachel .wert').allTextContents();
+      gleich(werte[0], '5/54', 'versorgte Gaerten');
+
+      /* Eine Uebergabe eintragen — prueft, dass auch der nachgeladene Teil
+         (das Verkleinern der Fotos) mit eingebunden wurde. */
+      const g = eigen.locator('.garten').nth(2);
+      await g.locator('.zeile').click();
+      await g.locator('.schalter input').check();
+      await g.locator('.rollout .wahl', { hasText: 'Persönlich' }).click();
+      await g.locator('input[type="text"]').first().fill('Heinz Brandt');
+      await g.locator('button.haupt', { hasText: 'Speichern' }).click();
+      await g.locator('.form').waitFor({ state: 'detached', timeout: 5000 });
+
+      if (fremd.length > 0) throw new Error(`Fremde Anfragen: ${fremd.slice(0, 3).join(', ')}`);
+      if (fehler.length > 0) throw new Error(fehler.join(' // '));
+    } finally {
+      await eigen.close();
+    }
+  });
 } finally {
   await browser.close();
   server.close();

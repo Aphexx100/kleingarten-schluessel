@@ -12,7 +12,8 @@
     "test": "node scripts/smoke-test.mjs",
     "check": "npm run unit && npm run build && npm test",
     "einrichtung": "node scripts/pruefe-einrichtung.mjs",
-    "code-vorschlag": "node scripts/code-vorschlag.mjs"
+    "code-vorschlag": "node scripts/code-vorschlag.mjs",
+    "nach-vereinsseite": "node scripts/nach-vereinsseite.mjs"
   },
   "devDependencies": {
     "esbuild": "^0.28.2",

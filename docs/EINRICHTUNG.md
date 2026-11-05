@@ -140,22 +140,48 @@ Es sollten 54 leere Gärten erscheinen.
 Ohne jede Einrichtung ansehen kannst du die Seite jederzeit mit
 `http://localhost:8095/?demo` — dort liegt alles nur im Browserfenster.
 
-## 6. Ins Netz stellen (GitHub Pages) — ✅ erledigt
+## 6. Ins Netz stellen — ✅ erledigt
 
-Repo [`Aphexx100/kleingarten-schluessel`](https://github.com/Aphexx100/kleingarten-schluessel),
-Pages von `main` / root, live unter
+Die Liste läuft unter der Vereinsdomain:
 
-**<https://aphexx100.github.io/kleingarten-schluessel/>**
+**<https://www.kgvgruenerwinkel.de/schluessel/>**
 
-Die Adresse der Funktion steht in `index.html` — der Vorstand braucht also nur
-den Zugangscode.
+### Wie sie dorthin kommt
 
-Nach einem Push dauert es etwa eine Minute, und GitHub Pages hält alte Dateien
-rund zehn Minuten im Zwischenspeicher. Wenn eine Änderung nicht erscheint, zuerst
-ein erzwungenes Neuladen (Strg+Umschalt+R) verlangen, bevor irgendwo anders
-gesucht wird.
+Quelle ist und bleibt dieses Projekt. Ausgeliefert wird eine gebündelte
+Einzeldatei über die vorhandene Pipeline der Vereinsseite:
 
-Jetzt noch `ERLAUBTE_HERKUNFT` aus Schritt 3 anlegen.
+```
+kleingarten-schluessel/src/…        ← hier wird geändert
+        │  npm run nach-vereinsseite <Pfad zum GruenerWinkel-Repo>
+        ▼
+GruenerWinkel/frontend/public/schluessel/index.html   ← Kopie, nie von Hand ändern
+        │  git push  →  Action „Build & Deploy auf Strato“  →  lftp
+        ▼
+www.kgvgruenerwinkel.de/schluessel/
+```
+
+Nach jeder Änderung an der Liste also:
+
+```bash
+npm run check && npm run nach-vereinsseite ../GruenerWinkel
+```
+
+und anschließend im Vereins-Repo committen und pushen. Der Lauf dauert gut
+anderthalb Minuten.
+
+### Warum eine Einzeldatei
+
+Weil alles in einer Datei steckt, kann im Ordner `schluessel/` nichts
+auseinanderlaufen — keine halb aktualisierten Skripte, kein Zwischenspeicher,
+der eine alte Datei mit einer neuen mischt. `npm run check` prüft diese Datei
+eigens.
+
+### Das Repo
+
+[`Aphexx100/kleingarten-schluessel`](https://github.com/Aphexx100/kleingarten-schluessel)
+bleibt die Quelle. GitHub Pages wird dort nicht mehr gebraucht — zwei lebende
+Kopien derselben Liste wären eine Quelle von Verwirrung.
 
 ## 7. An den Vorstand weitergeben
 
