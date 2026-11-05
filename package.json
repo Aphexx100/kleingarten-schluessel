@@ -13,7 +13,8 @@
     "check": "npm run unit && npm run build && npm test",
     "einrichtung": "node scripts/pruefe-einrichtung.mjs",
     "code-vorschlag": "node scripts/code-vorschlag.mjs",
-    "nach-vereinsseite": "node scripts/nach-vereinsseite.mjs"
+    "nach-vereinsseite": "node scripts/nach-vereinsseite.mjs",
+    "anleitung": "node scripts/anleitung.mjs"
   },
   "devDependencies": {
     "esbuild": "^0.28.2",
