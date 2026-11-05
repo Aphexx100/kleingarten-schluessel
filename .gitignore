@@ -1,3 +1,6 @@
 node_modules/
 dist/
 .DS_Store
+
+# Zwischendateien beim Erzeugen der Anleitung (gesperrte Zieldatei)
+*.neu
