@@ -83,10 +83,19 @@ Wer den Code hat, sieht alle Namen, Adressen und Fotos. Er gehört in den
 Vorstand und sonst nirgendwohin — und nicht in dieselbe Nachricht wie der Link
 zur Seite.
 
-Optional, empfehlenswert sobald die Seite online ist: ein zweites Secret
-`ERLAUBTE_HERKUNFT` mit dem Wert deiner Pages-Adresse, z. B.
-`https://aphexx100.github.io`. Dann nehmen andere Webseiten die Funktion nicht
-in Anspruch.
+Dazu gehört ein zweites Secret, sobald die Seite online ist:
+
+- Name: `ERLAUBTE_HERKUNFT`
+- Wert: `https://aphexx100.github.io`
+
+Nur der Ursprung, **ohne** Pfad und ohne Schrägstrich am Ende — der Browser
+schickt genau das mit. Damit nehmen andere Webseiten die Funktion nicht mehr in
+Anspruch.
+
+Nach dem Anlegen die Edge Function einmal neu bereitstellen, sonst kennt sie das
+Secret nicht. Lokales Arbeiten auf `localhost` funktioniert danach nicht mehr —
+dafür das Secret kurzzeitig auf
+`https://aphexx100.github.io,http://localhost:8095` setzen.
 
 ## 4. Die Edge Function anlegen
 
@@ -131,16 +140,22 @@ Es sollten 54 leere Gärten erscheinen.
 Ohne jede Einrichtung ansehen kannst du die Seite jederzeit mit
 `http://localhost:8095/?demo` — dort liegt alles nur im Browserfenster.
 
-## 6. Ins Netz stellen (GitHub Pages)
+## 6. Ins Netz stellen (GitHub Pages) — ✅ erledigt
 
-Wie bei deinen anderen Projekten: Repo anlegen, pushen, unter **Settings →
-Pages** die Quelle auf `main` / root stellen.
+Repo [`Aphexx100/kleingarten-schluessel`](https://github.com/Aphexx100/kleingarten-schluessel),
+Pages von `main` / root, live unter
 
-Die Adresse der Funktion steht bereits in `index.html` — der Vorstand braucht
-also nur den Zugangscode.
+**<https://aphexx100.github.io/kleingarten-schluessel/>**
 
-Vergiss danach nicht `ERLAUBTE_HERKUNFT` aus Schritt 3: sobald die Pages-Adresse
-feststeht, als Secret eintragen (z. B. `https://aphexx100.github.io`).
+Die Adresse der Funktion steht in `index.html` — der Vorstand braucht also nur
+den Zugangscode.
+
+Nach einem Push dauert es etwa eine Minute, und GitHub Pages hält alte Dateien
+rund zehn Minuten im Zwischenspeicher. Wenn eine Änderung nicht erscheint, zuerst
+ein erzwungenes Neuladen (Strg+Umschalt+R) verlangen, bevor irgendwo anders
+gesucht wird.
+
+Jetzt noch `ERLAUBTE_HERKUNFT` aus Schritt 3 anlegen.
 
 ## 7. An den Vorstand weitergeben
 
