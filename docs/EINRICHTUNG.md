@@ -164,8 +164,44 @@ Zwei getrennte Nachrichten, bewusst auf verschiedenen Wegen:
 - den Link zur Seite,
 - den Zugangscode (besser mündlich oder am Telefon).
 
-Jeder trägt beim ersten Öffnen seinen Vornamen ein. Der steht dann an seinen
-Einträgen und im Verlauf.
+Nicht beides in derselben Nachricht. Wer eines von beiden abfängt, hat sonst
+gleich alles.
+
+### Text zum Kopieren
+
+> Hallo zusammen,
+>
+> für die Ausgabe der neuen Außentor-Schlüssel gibt es jetzt eine gemeinsame
+> Liste im Netz:
+>
+> https://aphexx100.github.io/kleingarten-schluessel/
+>
+> Den Zugangscode bekommt ihr von mir persönlich — bitte nicht per Mail oder
+> Messenger weitergeben.
+>
+> So geht's: Seite öffnen, Code eingeben, euren Vornamen eintragen. Dann seht
+> ihr alle 54 Gärten. Wer einen Schlüssel übergeben hat, tippt auf die Zeile,
+> setzt den Haken und wählt aus, wie übergeben wurde:
+>
+> - **persönlich** → Name der Person und Datum
+> - **hinterlegt** → wo genau, Datum, und ein Foto vom Ort
+> - **per Post** → Adresse, Datum des Abschickens, Foto vom Brief oder vom
+>   Einwurf
+>
+> Das Foto macht ihr direkt aus der Seite heraus mit dem Handy. Es ist unser
+> Nachweis, falls später jemand sagt, er habe nie einen Schlüssel bekommen.
+>
+> Tipp fürs Handy: Seite einmal zum Startbildschirm hinzufügen. Sonst vergisst
+> der Browser den Code nach ein, zwei Wochen und ihr müsst ihn neu eingeben.
+>
+> In der Liste stehen Namen und Adressen von Mitgliedern. Bitte entsprechend
+> behandeln.
+
+### Warum der Hinweis mit dem Startbildschirm
+
+Safari und andere Browser räumen den Speicher selten besuchter Seiten nach etwa
+einer Woche auf. Dann ist der Zugangscode weg — die Daten natürlich nicht. Als
+Lesezeichen auf dem Startbildschirm passiert das nicht.
 
 ---
 
