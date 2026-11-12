@@ -190,9 +190,8 @@ Deno.serve(async (req) => {
         const satz = {
           nr,
           erhalten,
-          /* Die Karte haengt nicht am Schluessel: ein Garten kann eine Karte
-             haben, ohne schon einen Schluessel bekommen zu haben. */
-          karte: eingang.karte === true,
+          /* karte wird weiter unten gesetzt, sobald der bisherige Stand da ist. */
+          karte: false,
           anzahl: Math.max(0, Math.min(5, Number(eingang.anzahl) || (erhalten ? 1 : 0))),
           art: erhalten ? art : null,
           person: erhalten && art === 'persoenlich' ? text(eingang.person, 120) : null,
@@ -210,6 +209,14 @@ Deno.serve(async (req) => {
 
         const { data: vorher } = await db.from('gaerten').select('*').eq('nr', nr).single();
         if (!vorher) return antwort({ fehler: 'Garten ' + nr + ' ist nicht in der Liste.' }, 404, origin);
+
+        /* Die Karte haengt nicht am Schluessel: ein Garten kann eine Karte
+           haben, ohne schon einen Schluessel bekommen zu haben.
+           Schickt eine Seite das Feld gar nicht mit — etwa ein Browser, der
+           noch eine alte Fassung der Liste im Zwischenspeicher hat —, bleibt
+           der bisherige Stand stehen. Sonst wuerde ein Speichern aus so einem
+           Tab die Karte eines Gartens stillschweigend zurueckstellen. */
+        satz.karte = typeof eingang.karte === 'boolean' ? eingang.karte : vorher.karte === true;
 
         /* fotos bleiben unberührt: die werden über die Foto-Aktionen gepflegt. */
         const { data: nachher, error } = await db
