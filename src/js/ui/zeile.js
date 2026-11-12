@@ -7,7 +7,7 @@
  * geändert.
  */
 
-import { h, feld, leeren } from './dom.js';
+import { h, feld, leeren, anhaengen } from './dom.js';
 import { groesseLesbar } from '../bilder.js';
 import {
   ARTEN,
@@ -276,7 +276,8 @@ export function zeile(garten, handlungen) {
       }
     });
 
-    form.append(
+    anhaengen(
+      form,
       h(
         'div',
         { class: 'aktionen' },

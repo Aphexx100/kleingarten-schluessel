@@ -140,11 +140,17 @@ try {
   await schuss('zahlen', '.zahlen');
 
   let g = await frischeZeile();
-  await nurZeigen(['.schalter']);
+  await nurZeigen(['.schalter.schluessel']);
   await schuss('haken', g.locator('.form'));
 
   g = await frischeZeile();
-  await g.locator('.schalter input').check();
+  await g.locator('.schalter.karte input').check();
+  await seite.waitForTimeout(150);
+  await nurZeigen(['.schalter.karte', '.karte-hinweis']);
+  await schuss('karte', g.locator('.form'));
+
+  g = await frischeZeile();
+  await g.locator('.schalter.schluessel input').check();
   await g.locator('.rollout').waitFor();
   await schuss('rollout', g.locator('.rollout'));
 
@@ -169,7 +175,7 @@ try {
 
   for (const weg of wege) {
     g = await frischeZeile();
-    await g.locator('.schalter input').check();
+    await g.locator('.schalter.schluessel input').check();
     await g.locator('.rollout .wahl', { hasText: weg.wahl }).click();
     await seite.waitForTimeout(150);
     await weg.fuellen(g);
@@ -179,7 +185,7 @@ try {
   }
 
   g = await frischeZeile();
-  await g.locator('.schalter input').check();
+  await g.locator('.schalter.schluessel input').check();
   await g.locator('.rollout .wahl', { hasText: 'Persönlich' }).click();
   await seite.waitForTimeout(150);
   await g.locator('button.haupt', { hasText: 'Speichern' }).click();

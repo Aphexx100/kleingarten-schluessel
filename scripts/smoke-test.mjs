@@ -360,6 +360,22 @@ try {
 
   console.log('\nSauberkeit');
 
+  await pruefe('auch eine offene Zeile zeigt keinen Resttext wie "null"', async () => {
+    /* Garten 3 wurde nie geändert, geaendert_am ist also leer. Genau dort
+       stand einmal ein "null" am Fuß des Formulars, weil append() leere
+       Kinder in Text verwandelt. Die Zeile wird eigens aufgeklappt, weil der
+       Fehler nur im geöffneten Zustand sichtbar ist. */
+    const g3 = seite.locator('.garten').nth(2);
+    await g3.locator('.zeile').click();
+    await g3.locator('.form').waitFor({ timeout: 3000 });
+    const text = await g3.innerText();
+    if (/null|undefined|\[object/.test(text)) {
+      throw new Error(`Resttext in der Zeile: ${text.replace(/\s+/g, ' ').slice(0, 140)}`);
+    }
+    await g3.locator('button.leise', { hasText: 'Abbrechen' }).click();
+    await g3.locator('.form').waitFor({ state: 'detached', timeout: 3000 });
+  });
+
   await pruefe('der Browser hat keinen Fehler gemeldet', () => {
     if (konsolenfehler.length > 0) throw new Error(konsolenfehler.join(' // '));
   });

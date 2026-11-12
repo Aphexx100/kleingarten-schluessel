@@ -42,6 +42,19 @@ export function feld(beschriftung, eingabe, hinweis) {
   );
 }
 
+/* Kinder anhängen und dabei leere aussortieren.
+ *
+ * append() macht aus null die Zeichenkette "null" und schreibt sie sichtbar
+ * ins Dokument — anders als h(), das leere Kinder verwirft. Wer also
+ * `el.append(etwas, bedingung ? x : null)` schreibt, bekommt im Zweifel ein
+ * "null" auf die Seite. Diese Hilfe gibt es, damit das nicht mehr passiert.
+ */
+export function anhaengen(el, ...kinder) {
+  const echte = kinder.flat(Infinity).filter((k) => k !== null && k !== undefined && k !== false);
+  if (echte.length) el.append(...echte);
+  return el;
+}
+
 export function leeren(el) {
   while (el.firstChild) el.firstChild.remove();
   return el;

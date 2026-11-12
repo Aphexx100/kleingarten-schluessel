@@ -39,6 +39,16 @@ export const SCHRITTE = [
   },
   {
     nr: 4,
+    titel: 'Schlüsselkarte',
+    bild: 'karte',
+    absaetze: [
+      'Mit der Karte dürfen weitere Schlüssel nachgemacht werden. Schalter umlegen, wenn ein Garten sie bekommt — und wieder zurück, sobald sie zurück ist.'
+    ],
+    merke:
+      'Es gibt nur **13 Karten für 54 Gärten**. Sie gehen reihum, also bitte nachhalten. Oben zeigt die Liste, wie viele gerade draußen sind.'
+  },
+  {
+    nr: 5,
     titel: 'Weg auswählen',
     bild: 'rollout',
     absaetze: [
@@ -46,13 +56,13 @@ export const SCHRITTE = [
     ]
   },
   {
-    nr: 5,
+    nr: 6,
     titel: 'Persönlich übergeben',
     bild: 'persoenlich',
     absaetze: ['Name der Person und Datum. Kein Foto nötig — der Name ist der Nachweis.']
   },
   {
-    nr: 6,
+    nr: 7,
     titel: 'Hinterlegt',
     bild: 'hinterlegt',
     absaetze: [
@@ -60,14 +70,14 @@ export const SCHRITTE = [
     ]
   },
   {
-    nr: 7,
+    nr: 8,
     titel: 'Per Post',
     bild: 'post',
     absaetze: ['Adresse, Datum des Abschickens, **Foto** vom Brief oder vom Einwurf.'],
     merke: '**Foto aufnehmen** öffnet direkt die Kamera. Das Bild wird automatisch verkleinert.'
   },
   {
-    nr: 8,
+    nr: 9,
     titel: 'Speichern',
     bild: 'fehler',
     absaetze: [
@@ -75,7 +85,7 @@ export const SCHRITTE = [
     ]
   },
   {
-    nr: 9,
+    nr: 10,
     titel: 'Suchen und filtern',
     bild: 'filter',
     absaetze: [
@@ -84,7 +94,7 @@ export const SCHRITTE = [
     ]
   },
   {
-    nr: 10,
+    nr: 11,
     titel: 'Sicherung ziehen',
     bild: 'sichern',
     absaetze: [

@@ -13,7 +13,7 @@ import { api, zugang, ApiFehler } from './api.js';
 import { demoApi } from './demo.js';
 import { filtern, statistik } from './modell.js';
 import { exportieren, herunterladen } from './export.js';
-import { h, leeren } from './ui/dom.js';
+import { h, leeren, anhaengen } from './ui/dom.js';
 import { kopf } from './ui/kopf.js';
 import { zeile } from './ui/zeile.js';
 import { zugangsmaske } from './ui/zugang.js';
@@ -59,17 +59,13 @@ async function starten() {
 }
 
 function anmeldungZeigen(meldung) {
-  /* append() wandelt null in die Zeichenkette "null" um und schreibt sie sichtbar
-     ins Dokument — anders als h(), das leere Kinder verwirft. Darum hier vorher
-     aussortieren. */
-  const teile = [
+  anhaengen(
+    leeren(wurzel),
     meldung
       ? h('div', { class: 'zugang' }, h('div', { class: 'meldung fehler', text: meldung }))
       : null,
     zugangsmaske(() => starten())
-  ].filter(Boolean);
-
-  leeren(wurzel).append(...teile);
+  );
   wurzel.setAttribute('aria-busy', 'false');
 }
 
