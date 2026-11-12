@@ -190,6 +190,9 @@ Deno.serve(async (req) => {
         const satz = {
           nr,
           erhalten,
+          /* Die Karte haengt nicht am Schluessel: ein Garten kann eine Karte
+             haben, ohne schon einen Schluessel bekommen zu haben. */
+          karte: eingang.karte === true,
           anzahl: Math.max(0, Math.min(5, Number(eingang.anzahl) || (erhalten ? 1 : 0))),
           art: erhalten ? art : null,
           person: erhalten && art === 'persoenlich' ? text(eingang.person, 120) : null,

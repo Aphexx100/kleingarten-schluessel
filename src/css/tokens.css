@@ -29,6 +29,13 @@
   --fehler: #f2919c;
   --fehler-grund: #3b1a1f;
 
+  /* Eigener Ton für die Schlüsselkarte. Nicht --karte nennen: so heißt schon
+     die Hintergrundfarbe aller Kartenflächen. Grün, Gelb und Rot sind
+     ebenfalls belegt, und eine Zeile kann gleichzeitig versorgt sein und eine
+     Karte draußen haben — die Markierungen müssen sich vertragen. */
+  --leihkarte: #8ab4f8;
+  --leihkarte-grund: #18263a;
+
   --schatten: 0 1px 2px rgb(0 0 0 / 40%), 0 4px 12px rgb(0 0 0 / 30%);
   --schatten-hoch: 0 8px 32px rgb(0 0 0 / 55%);
 

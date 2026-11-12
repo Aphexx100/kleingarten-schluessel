@@ -15,6 +15,7 @@ import { ART_NAMEN, datumDE, statistik } from './modell.js';
 
 const SPALTEN = [
   'Garten',
+  'Schlüsselkarte',
   'Schlüssel erhalten',
   'Anzahl',
   'Art der Übergabe',
@@ -42,6 +43,7 @@ export function alsCsv(gaerten) {
     zeilen.push(
       [
         g.nr,
+        g.karte ? 'ausgeliehen' : '',
         g.erhalten ? 'ja' : 'nein',
         g.erhalten ? g.anzahl : '',
         g.art ? ART_NAMEN[g.art] : '',
@@ -76,6 +78,8 @@ function liesmich(gaerten, zeitpunkt) {
     `Schlüssel ausgegeben:    ${z.ausgegeben} von ${z.schluesselGesamt}`,
     `noch übrig:              ${z.uebrig}`,
     '',
+    `Karten draußen:          ${z.kartenDraussen} von ${z.kartenGesamt}`,
+    '',
     `persönlich übergeben:    ${z.nachArt.persoenlich}`,
     `hinterlegt:              ${z.nachArt.hinterlegt}`,
     `per Post geschickt:      ${z.nachArt.post}`,
@@ -83,6 +87,9 @@ function liesmich(gaerten, zeitpunkt) {
     z.ohneFoto > 0
       ? `Achtung: ${z.ohneFoto} Übergabe(n) ohne Nachweisfoto.`
       : 'Alle Hinterlegungen und Postversände haben ein Nachweisfoto.',
+    z.kartenUebrig < 0
+      ? `Achtung: ${-z.kartenUebrig} Karte(n) mehr ausgeliehen als vorhanden.`
+      : '',
     '',
     'Inhalt dieses Archivs',
     '---------------------',

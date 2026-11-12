@@ -7,6 +7,12 @@
 
 export const SCHLUESSEL_GESAMT = 60;
 
+/* Mit der Schlüsselkarte darf ein Garten weitere Schlüssel nachmachen lassen.
+   Jeder Garten braucht sie einmal, aber es gibt nur 13 Stück — sie wandern
+   also reihum. Der Schalter sagt deshalb nicht "hat eine bekommen", sondern
+   "hat gerade eine". */
+export const KARTEN_GESAMT = 13;
+
 export const ARTEN = ['persoenlich', 'hinterlegt', 'post'];
 
 export const ART_NAMEN = {
@@ -34,6 +40,7 @@ export function leererGarten(nr) {
     nr,
     erhalten: false,
     anzahl: 1,
+    karte: false,
     art: null,
     person: null,
     ort: null,
@@ -138,7 +145,11 @@ export function zusammenfassung(g) {
 
 /* ----------------------------------------------------------------- Zahlen */
 
-export function statistik(gaerten, schluesselGesamt = SCHLUESSEL_GESAMT) {
+export function statistik(
+  gaerten,
+  schluesselGesamt = SCHLUESSEL_GESAMT,
+  kartenGesamt = KARTEN_GESAMT
+) {
   const versorgt = gaerten.filter((g) => g.erhalten);
   const ausgegeben = versorgt.reduce((summe, g) => summe + (Number(g.anzahl) || 0), 0);
 
@@ -153,6 +164,9 @@ export function statistik(gaerten, schluesselGesamt = SCHLUESSEL_GESAMT) {
     (g) => (g.art === 'hinterlegt' || g.art === 'post') && (g.fotos ?? []).length === 0
   ).length;
 
+  /* Karten sind Leihgaben: gezählt wird, wie viele gerade draußen sind. */
+  const kartenDraussen = gaerten.filter((g) => g.karte).length;
+
   return {
     gaerten: gaerten.length,
     versorgt: versorgt.length,
@@ -162,7 +176,10 @@ export function statistik(gaerten, schluesselGesamt = SCHLUESSEL_GESAMT) {
     uebrig: schluesselGesamt - ausgegeben,
     nachArt,
     unvollstaendig,
-    ohneFoto
+    ohneFoto,
+    kartenDraussen,
+    kartenGesamt,
+    kartenUebrig: kartenGesamt - kartenDraussen
   };
 }
 
@@ -175,7 +192,8 @@ export const FILTER = {
   persoenlich: 'Persönlich',
   hinterlegt: 'Hinterlegt',
   post: 'Post',
-  ohneFoto: 'Foto fehlt'
+  ohneFoto: 'Foto fehlt',
+  karte: 'Karte draußen'
 };
 
 export function filtern(gaerten, { suche = '', filter = 'alle' } = {}) {
@@ -185,6 +203,7 @@ export function filtern(gaerten, { suche = '', filter = 'alle' } = {}) {
     if (filter === 'offen' && g.erhalten) return false;
     if (filter === 'erledigt' && !g.erhalten) return false;
     if (ARTEN.includes(filter) && g.art !== filter) return false;
+    if (filter === 'karte' && !g.karte) return false;
     if (filter === 'ohneFoto') {
       const braucht = g.erhalten && (g.art === 'hinterlegt' || g.art === 'post');
       if (!braucht || (g.fotos ?? []).length > 0) return false;

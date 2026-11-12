@@ -35,6 +35,7 @@ function aufbau() {
     geaendert_am: '2026-11-02T10:20:00.000Z'
   });
   setze(5, {
+    karte: true,
     erhalten: true,
     anzahl: 1,
     art: 'hinterlegt',
@@ -44,6 +45,10 @@ function aufbau() {
     erfasst_von: 'Petra',
     geaendert_am: '2026-11-03T16:40:00.000Z'
   });
+  /* Ein Garten mit Karte, aber noch ohne Schlüssel — die beiden hängen nicht
+     zusammen, und das soll der Vorführbetrieb zeigen. */
+  setze(7, { karte: true });
+
   setze(9, {
     erhalten: true,
     anzahl: 1,
@@ -55,6 +60,7 @@ function aufbau() {
     geaendert_am: '2026-11-04T09:05:00.000Z'
   });
   setze(12, {
+    karte: true,
     erhalten: true,
     anzahl: 1,
     art: 'hinterlegt',

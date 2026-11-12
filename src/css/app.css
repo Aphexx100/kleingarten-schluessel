@@ -169,9 +169,19 @@ textarea {
   margin-bottom: var(--l4);
 }
 
+/* Fünf Kacheln: auf dem Handy zwei Spalten, die fünfte nimmt die ganze
+   Breite ein, damit unten keine Lücke klafft. */
+.zahlen .kachel:last-child {
+  grid-column: 1 / -1;
+}
+
 @media (min-width: 560px) {
   .zahlen {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(5, 1fr);
+  }
+
+  .zahlen .kachel:last-child {
+    grid-column: auto;
   }
 }
 
@@ -209,6 +219,15 @@ textarea {
 
 .kachel.achtung .wert {
   color: var(--offen);
+}
+
+.kachel.karte {
+  background: var(--leihkarte-grund);
+  border-color: var(--leihkarte);
+}
+
+.kachel.karte .wert {
+  color: var(--leihkarte);
 }
 
 /* Fortschrittsbalken unter den Kacheln. */
@@ -292,6 +311,22 @@ textarea {
 
 .garten.unvollstaendig {
   border-left: 4px solid var(--offen);
+}
+
+/* Karte draußen: das ganze Feld hebt sich ab. Der linke Streifen bleibt dem
+   Schlüsselstand vorbehalten, damit beides nebeneinander ablesbar ist. */
+.garten.hat-karte {
+  background: var(--leihkarte-grund);
+  /* Nur drei Kanten einfärben: border-color würde auch den linken Streifen
+     überschreiben, und der zeigt den Schlüsselstand an. Beides muss
+     nebeneinander ablesbar bleiben. */
+  border-top-color: color-mix(in srgb, var(--leihkarte) 45%, transparent);
+  border-right-color: color-mix(in srgb, var(--leihkarte) 45%, transparent);
+  border-bottom-color: color-mix(in srgb, var(--leihkarte) 45%, transparent);
+}
+
+.garten.hat-karte .zeile:hover {
+  background: color-mix(in srgb, var(--leihkarte) 10%, transparent);
 }
 
 .garten.auf {
@@ -381,6 +416,11 @@ textarea {
   color: var(--warn);
 }
 
+.marke.karte {
+  background: color-mix(in srgb, var(--leihkarte) 18%, transparent);
+  color: var(--leihkarte);
+}
+
 .pfeil {
   flex: 0 0 auto;
   color: var(--text-leise);
@@ -414,6 +454,34 @@ textarea {
   height: 22px;
   accent-color: var(--gruen-700);
   flex: 0 0 auto;
+}
+
+/* Der Kartenschalter steht hervorgehoben: er betrifft eine Leihgabe, von der
+   es nur 13 gibt, und wird häufiger nachgeschlagen als alles andere. */
+.schalter.karte {
+  border: 1px solid var(--rand-stark);
+  border-radius: var(--r);
+  padding: var(--l3);
+  margin-top: var(--l3);
+}
+
+.schalter.karte input {
+  accent-color: var(--leihkarte);
+}
+
+.schalter.karte.an {
+  background: var(--leihkarte-grund);
+  border-color: var(--leihkarte);
+}
+
+.schalter.karte.an label {
+  color: var(--leihkarte);
+}
+
+.karte-hinweis {
+  margin: var(--l2) 0 var(--l3);
+  font-size: 0.82rem;
+  color: var(--text-leise);
 }
 
 .schalter label {

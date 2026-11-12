@@ -15,6 +15,7 @@ import { fileURLToPath } from 'node:url';
 import {
   ARTEN,
   FILTER,
+  KARTEN_GESAMT,
   SCHLUESSEL_GESAMT,
   bereinigen,
   datumDE,
@@ -282,7 +283,8 @@ test('Anfuehrungszeichen und Semikolons in Notizen werden maskiert', () => {
 
 test('offene Gaerten stehen mit nein in der Tabelle', () => {
   const zeile = alsCsv([leererGarten(4)]).trim().split('\r\n')[1];
-  assert.ok(zeile.startsWith('4;nein;'));
+  /* Garten, Karte (leer), erhalten — die Kartenspalte steht an zweiter Stelle. */
+  assert.ok(zeile.startsWith('4;;nein;'), `Zeile: ${zeile}`);
 });
 
 /* ------------------------------------------------------------------- ZIP */
@@ -333,4 +335,88 @@ test('die Edge Function bremst das Durchprobieren und vergleicht in fester Zeit'
   assert.ok(/abweichung \|=/.test(quelle), 'Vergleich ohne Laufzeitunterschied');
   assert.ok(!/SUPABASE_ANON_KEY/.test(quelle), 'die Function benutzt den service_role-Key');
   assert.ok(quelle.includes('createSignedUrls'), 'Fotos nur ueber kurzlebige Links');
+});
+
+
+/* ------------------------------------------------------- Schluesselkarte */
+
+test('eine leere Zeile hat keine Karte', () => {
+  assert.equal(leererGarten(7).karte, false);
+});
+
+test('die Karte haengt nicht am Schluessel — beides ist einzeln moeglich', () => {
+  /* Ein Garten kann eine Karte haben, ohne schon einen Schluessel bekommen zu
+     haben: die Karte dient ja gerade dazu, sich welche machen zu lassen. */
+  const nurKarte = g(7, { karte: true });
+  assert.equal(fehler(nurKarte), null, 'Karte allein ist kein unvollstaendiger Eintrag');
+  assert.equal(statistik([nurKarte]).versorgt, 0);
+  assert.equal(statistik([nurKarte]).kartenDraussen, 1);
+});
+
+test('das Zuruecknehmen des Hakens loescht die Karte nicht', () => {
+  /* bereinigen() raeumt die Felder der Uebergabe auf. Die Karte gehoert nicht
+     dazu — sie ist unabhaengig und bliebe sonst stillschweigend verschwunden. */
+  const nachher = bereinigen({ ...persoenlich(9), karte: true, erhalten: false });
+  assert.equal(nachher.karte, true);
+});
+
+test('die Statistik zaehlt die ausgeliehenen Karten', () => {
+  const liste = [
+    g(1, { karte: true }),
+    { ...persoenlich(2), karte: true },
+    persoenlich(3),
+    leererGarten(4)
+  ];
+  const z = statistik(liste);
+  assert.equal(z.kartenDraussen, 2);
+  assert.equal(z.kartenGesamt, KARTEN_GESAMT);
+  assert.equal(z.kartenUebrig, KARTEN_GESAMT - 2);
+});
+
+test('mehr Karten draussen als vorhanden ergibt einen negativen Rest', () => {
+  /* 13 Karten, 14 Gaerten haetten eine: das kann nur ein Fehleintrag sein und
+     muss auffallen, statt stillschweigend zu stimmen. */
+  const zuViele = Array.from({ length: KARTEN_GESAMT + 1 }, (_, i) =>
+    g(i + 1, { karte: true })
+  );
+  const z = statistik(zuViele);
+  assert.equal(z.kartenDraussen, KARTEN_GESAMT + 1);
+  assert.equal(z.kartenUebrig, -1);
+});
+
+test('es gibt 13 Karten', () => {
+  assert.equal(KARTEN_GESAMT, 13);
+});
+
+test('der Filter "Karte draussen" zeigt nur Gaerten mit Karte', () => {
+  const liste = [g(1, { karte: true }), persoenlich(2), leererGarten(3)];
+  assert.ok('karte' in FILTER, 'Filter ist vorhanden');
+  assert.deepEqual(filtern(liste, { filter: 'karte' }).map((x) => x.nr), [1]);
+});
+
+test('die Karte steht in der CSV, auch ohne Schluessel', () => {
+  const csv = alsCsv([g(7, { karte: true })]);
+  const kopf = csv.split('\r\n')[0];
+  assert.ok(kopf.includes('Schlüsselkarte'), 'Spalte vorhanden');
+  /* Zweite Spalte: Garten, dann Karte. */
+  assert.equal(kopf.split(';')[1], 'Schlüsselkarte');
+  assert.equal(csv.split('\r\n')[1].split(';')[1], 'ausgeliehen');
+});
+
+test('ohne Karte bleibt die Spalte leer', () => {
+  assert.equal(alsCsv([leererGarten(4)]).split('\r\n')[1].split(';')[1], '');
+});
+
+test('die Edge Function uebernimmt das Kartenfeld', () => {
+  const quelle = fs.readFileSync(path.join(WURZEL, 'supabase/functions/api/index.ts'), 'utf8');
+  assert.ok(/karte:\s*eingang\.karte === true/.test(quelle), 'wird gesetzt');
+  /* Nicht an "erhalten" gekoppelt — sonst verschwaende die Karte beim
+     Zuruecknehmen des Hakens. */
+  assert.ok(!/erhalten &&[^;]*eingang\.karte/.test(quelle), 'haengt nicht am Schluessel');
+});
+
+test('die Migration legt die Spalte an', () => {
+  const sql = fs.readFileSync(path.join(WURZEL, 'supabase/002_schluesselkarte.sql'), 'utf8');
+  assert.ok(/add column if not exists karte boolean/.test(sql), 'Spalte karte');
+  assert.ok(/not null default false/.test(sql), 'mit Vorgabewert, damit Altzeilen gueltig bleiben');
 });

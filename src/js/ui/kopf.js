@@ -106,6 +106,13 @@ export function kopf({ name, demo, onSuche, onFilter, onNameAendern }) {
           z.uebrig,
           z.uebrig < 0 ? 'zu viele ausgegeben!' : 'Schlüssel übrig',
           z.uebrig < 0 ? 'achtung' : null
+        ),
+        /* Die 13 Schlüsselkarten sind Leihgaben: entscheidend ist, wie viele
+           gerade draußen sind, nicht wie viele je ausgegeben wurden. */
+        kachel(
+          `${z.kartenDraussen}/${z.kartenGesamt}`,
+          z.kartenUebrig < 0 ? 'mehr Karten als vorhanden!' : 'Karten draußen',
+          z.kartenUebrig < 0 ? 'achtung' : z.kartenDraussen > 0 ? 'karte' : null
         )
       );
 

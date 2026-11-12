@@ -86,6 +86,7 @@ export function zeile(garten, handlungen) {
             )
           : null
       ),
+      garten.karte ? h('span', { class: 'marke karte', text: 'Karte' }) : null,
       unvollstaendig
         ? h('span', { class: 'marke achtung', text: 'Unvollständig' })
         : fotoFehlt
@@ -120,10 +121,42 @@ export function zeile(garten, handlungen) {
       }
     });
 
+    /* Die Schlüsselkarte steht oben und eigens hervorgehoben: sie ist eine
+       Leihgabe, die reihum geht, und wer sie gerade hat, ist die Frage, die
+       am häufigsten gestellt wird. Sie hängt nicht am Schlüssel — ein Garten
+       kann eine Karte haben, ohne schon einen Schlüssel bekommen zu haben. */
     form.append(
       h(
         'div',
-        { class: 'schalter' },
+        { class: entwurf.karte ? 'schalter karte an' : 'schalter karte' },
+        h('input', {
+          type: 'checkbox',
+          id: `karte-${garten.nr}`,
+          checked: entwurf.karte,
+          onchange: (e) => {
+            entwurf.karte = e.target.checked;
+            zeichnen();
+          }
+        }),
+        h('label', {
+          for: `karte-${garten.nr}`,
+          text: 'Schlüsselkarte ausgeliehen'
+        })
+      ),
+      h('p', {
+        class: 'hinweis karte-hinweis',
+        text: entwurf.karte
+          ? 'Zurückgeben nicht vergessen — es gibt nur 13 Karten für alle Gärten.'
+          : 'Mit der Karte dürfen weitere Schlüssel nachgemacht werden. Es gibt 13 Stück, sie gehen reihum.'
+      })
+    );
+
+    form.append(
+      h(
+        'div',
+        /* Eigene Kennzeichnung: seit es den Kartenschalter gibt, waere
+           ".schalter" allein mehrdeutig. */
+        { class: 'schalter schluessel' },
         schalter,
         h('label', {
           for: `erhalten-${garten.nr}`,
@@ -501,6 +534,9 @@ function klassen(garten, offen) {
   if (garten.erhalten && fehler(garten) !== null) teile.push('unvollstaendig');
   else if (garten.erhalten) teile.push('erledigt');
   else teile.push('offen');
+  /* Eigene Markierung, nicht statt der anderen: eine Zeile kann gleichzeitig
+     versorgt sein und eine Karte draußen haben. */
+  if (garten.karte) teile.push('hat-karte');
   if (offen) teile.push('auf');
   return teile.join(' ');
 }

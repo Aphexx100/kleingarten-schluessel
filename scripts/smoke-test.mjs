@@ -106,7 +106,7 @@ try {
 
   await pruefe('eine Hinterlegung ohne Foto wird markiert', async () => {
     const zeile = seite.locator('.garten').nth(11); // Garten 12
-    gleich(await zeile.locator('.marke').textContent(), 'Foto fehlt', 'Marke an Garten 12');
+    gleich(await zeile.locator('.marke:not(.karte)').textContent(), 'Foto fehlt', 'Marke an Garten 12');
   });
 
   console.log('\nEine persoenliche Uebergabe eintragen');
@@ -123,7 +123,7 @@ try {
   });
 
   await pruefe('der Haken bringt das Rollout mit drei Wahlmoeglichkeiten', async () => {
-    await garten3.locator('.schalter input').check();
+    await garten3.locator('.schalter.schluessel input').check();
     await garten3.locator('.rollout').waitFor({ timeout: 3000 });
     gleich(await garten3.locator('.rollout .wahl').count(), 3, 'Wahlmoeglichkeiten');
   });
@@ -178,7 +178,7 @@ try {
 
   await pruefe('bei Hinterlegung werden Ort und Foto angeboten', async () => {
     await garten4.locator('.zeile').click();
-    await garten4.locator('.schalter input').check();
+    await garten4.locator('.schalter.schluessel input').check();
     await garten4.locator('.rollout .wahl', { hasText: 'Hinterlegt' }).click();
     await garten4.locator('.fotos').waitFor({ timeout: 3000 });
     const beschriftungen = await garten4.locator('.form label').allTextContents();
@@ -258,12 +258,12 @@ try {
   await pruefe('Abbrechen verwirft die Eingabe', async () => {
     const garten7 = seite.locator('.garten').nth(6);
     await garten7.locator('.zeile').click();
-    await garten7.locator('.schalter input').check();
+    await garten7.locator('.schalter.schluessel input').check();
     await garten7.locator('.rollout .wahl', { hasText: 'Persönlich' }).click();
     await garten7.locator('input[type="text"]').first().fill('Wird verworfen');
     await garten7.locator('button.leise', { hasText: 'Abbrechen' }).click();
     await garten7.locator('.form').waitFor({ state: 'detached', timeout: 3000 });
-    gleich(await garten7.locator('.marke').textContent(), 'Offen', 'Marke nach Abbruch');
+    gleich(await garten7.locator('.marke:not(.karte)').textContent(), 'Offen', 'Marke nach Abbruch');
   });
 
   await pruefe('eine offene Zeile bleibt beim Filtern stehen', async () => {
@@ -275,6 +275,67 @@ try {
     }
     await garten8.locator('button.leise', { hasText: 'Abbrechen' }).click();
     await seite.locator('.filter button', { hasText: 'Alle' }).click();
+  });
+
+  console.log('\nSchlüsselkarte');
+
+  await pruefe('die Kachel zeigt die ausgeliehenen Karten', async () => {
+    const werte = await seite.locator('.kachel .wert').allTextContents();
+    gleich(werte.length, 5, 'Anzahl Kacheln');
+    gleich(werte[4], '3/13', 'Karten draussen');
+  });
+
+  await pruefe('ein Garten mit Karte hebt sich farblich ab', async () => {
+    const mitKarte = seite.locator('.garten.hat-karte');
+    gleich(await mitKarte.count(), 3, 'Zeilen mit Karte');
+    gleich(
+      (await mitKarte.locator('.nr').allTextContents()).join(','),
+      '5,7,12',
+      'Gaerten mit Karte'
+    );
+  });
+
+  await pruefe('die Karte haengt nicht am Schluessel', async () => {
+    /* Garten 7 hat eine Karte, aber keinen Schluessel — beides muss
+       nebeneinander ablesbar sein. */
+    const marken = await seite.locator('.garten').nth(6).locator('.marke').allTextContents();
+    if (!marken.includes('Karte') || !marken.includes('Offen')) {
+      throw new Error(`Marken an Garten 7: ${marken.join(' | ')}`);
+    }
+  });
+
+  await pruefe('der Filter "Karte draußen" zeigt genau diese Gaerten', async () => {
+    await seite.locator('.filter button', { hasText: 'Karte draußen' }).click();
+    gleich(
+      (await seite.locator('.garten:visible .nr').allTextContents()).join(','),
+      '5,7,12',
+      'gefilterte Gaerten'
+    );
+    await seite.locator('.filter button', { hasText: 'Alle' }).click();
+  });
+
+  await pruefe('eine Karte laesst sich ausgeben und die Zahl steigt', async () => {
+    const g20 = seite.locator('.garten').nth(19);
+    await g20.locator('.zeile').click();
+    await g20.locator('.schalter.karte input').check();
+    await g20.locator('button.haupt', { hasText: 'Speichern' }).click();
+    await g20.locator('.form').waitFor({ state: 'detached', timeout: 5000 });
+
+    const klassen = await g20.getAttribute('class');
+    if (!klassen.includes('hat-karte')) throw new Error(`Klassen: ${klassen}`);
+    gleich((await seite.locator('.kachel .wert').allTextContents())[4], '4/13', 'nach Ausgabe');
+  });
+
+  await pruefe('eine Karte laesst sich zuruecknehmen', async () => {
+    const g20 = seite.locator('.garten').nth(19);
+    await g20.locator('.zeile').click();
+    await g20.locator('.schalter.karte input').uncheck();
+    await g20.locator('button.haupt', { hasText: 'Speichern' }).click();
+    await g20.locator('.form').waitFor({ state: 'detached', timeout: 5000 });
+
+    const klassen = await g20.getAttribute('class');
+    if (klassen.includes('hat-karte')) throw new Error(`noch markiert: ${klassen}`);
+    gleich((await seite.locator('.kachel .wert').allTextContents())[4], '3/13', 'nach Ruecknahme');
   });
 
   console.log('\nExport');
@@ -370,7 +431,7 @@ try {
          (das Verkleinern der Fotos) mit eingebunden wurde. */
       const g = eigen.locator('.garten').nth(2);
       await g.locator('.zeile').click();
-      await g.locator('.schalter input').check();
+      await g.locator('.schalter.schluessel input').check();
       await g.locator('.rollout .wahl', { hasText: 'Persönlich' }).click();
       await g.locator('input[type="text"]').first().fill('Heinz Brandt');
       await g.locator('button.haupt', { hasText: 'Speichern' }).click();
